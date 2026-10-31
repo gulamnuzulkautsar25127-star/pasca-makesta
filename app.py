@@ -82,13 +82,6 @@ def password_admin():
         return None
 
 
-def pendaftaran_ditutup():
-    try:
-        return str(st.secrets.get("PENDAFTARAN_DITUTUP", "false")).strip().lower() in ("true", "1", "ya")
-    except Exception:
-        return False
-
-
 # ==============================
 # 2. TAMPILAN
 # ==============================
@@ -101,29 +94,26 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- Formulir pendaftaran (bisa ditutup lewat Secrets) ---
-if pendaftaran_ditutup():
-    st.warning("Mohon maaf, pendaftaran sudah ditutup.")
-else:
-    st.subheader("Formulir Pendaftaran")
-    with st.form("form_daftar", clear_on_submit=True):
-        lomba = st.selectbox("Cabang Lomba", DAFTAR_LOMBA)
-        ranting = st.text_input("Asal Ranting")
-        peserta = st.text_area(
-            "Nama Peserta",
-            placeholder="Tulis satu nama per baris",
-            help="Tulis satu nama peserta per baris.",
-        )
-        jumlah = st.number_input("Jumlah Tim", min_value=1, value=1, step=1)
-        kirim = st.form_submit_button("Simpan Pendaftaran", type="primary")
+# --- Formulir pendaftaran ---
+st.subheader("Formulir Pendaftaran")
+with st.form("form_daftar", clear_on_submit=True):
+    lomba = st.selectbox("Cabang Lomba", DAFTAR_LOMBA)
+    ranting = st.text_input("Asal Ranting")
+    peserta = st.text_area(
+        "Nama Peserta",
+        placeholder="Tulis satu nama per baris",
+        help="Tulis satu nama peserta per baris.",
+    )
+    jumlah = st.number_input("Jumlah Tim", min_value=1, value=1, step=1)
+    kirim = st.form_submit_button("Simpan Pendaftaran", type="primary")
 
-    if kirim:
-        daftar_nama = [n.strip() for n in peserta.splitlines() if n.strip()]
-        if not ranting.strip() or not daftar_nama:
-            st.warning("Semua data wajib diisi!")
-        else:
-            simpan(lomba, ranting.strip(), int(jumlah), "\n".join(daftar_nama))
-            st.success("Pendaftaran berhasil disimpan!")
+if kirim:
+    daftar_nama = [n.strip() for n in peserta.splitlines() if n.strip()]
+    if not ranting.strip() or not daftar_nama:
+        st.warning("Semua data wajib diisi!")
+    else:
+        simpan(lomba, ranting.strip(), int(jumlah), "\n".join(daftar_nama))
+        st.success("Pendaftaran berhasil disimpan!")
 
 # --- Area panitia (data hanya terlihat setelah login) ---
 st.divider()
